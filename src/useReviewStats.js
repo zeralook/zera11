@@ -1,0 +1,1 @@
+import {useState,useEffect} from 'react';import {api} from './api.js';export function useReviewStats(productId){const [stats,setStats]=useState({avg:0,count:0});useEffect(()=>{let active=true;api(`/api/review-stats/${productId}`).then(x=>{if(active)setStats(x)}).catch(()=>{});return()=>{active=false}},[productId]);return stats}
