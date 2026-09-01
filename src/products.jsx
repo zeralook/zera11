@@ -32,4 +32,5 @@ export function useProducts() {
 
 export function useProduct(id) {
   const { products, loading } = useProducts();
-  return { product: products.find(p => p.id === id),
+  return { product: products.find(p => p.id === id), loading };
+}
