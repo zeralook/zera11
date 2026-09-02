@@ -1,23 +1,51 @@
-import { useSearchParams, Link } from "react-router-dom";
-import { useState, useEffect } from "react";
-import { formatPrice, bagIcon } from "../store";
-import { useProduct } from "../products.jsx";
-import { useCart } from "../hooks.js";
-import { useReviewStats } from "../useReviewStats.js";
-import PageHead from "../components/PageHead.jsx";
-import StarRating from "../components/StarRating.jsx";
-import ReviewsSection from "../components/ReviewsSection.jsx";
-export default function Product() {
-  const [params] = useSearchParams(); const id = params.get("id");
-  const { product, loading } = useProduct(id); const { addToCart } = useCart(); const { avg, count } = useReviewStats(id);
-  const [selectedColor,setSelectedColor]=useState(0),[selectedSize,setSelectedSize]=useState(0),[qty,setQty]=useState(1),[activeThumb,setActiveThumb]=useState(0);
-  useEffect(()=>{setSelectedColor(0);setSelectedSize(0);setQty(1);setActiveThumb(0)},[id]);
-  if (loading && !product) return <><PageHead title="تفاصيل المنتج" crumb="الرئيسية / المتجر"/><section className="section" style={{paddingTop:60}}><div className="container"><div className="empty-state"><p>جاري تحميل المنتج...</p></div></div></section></>;
-  if (!product) return <><PageHead title="تفاصيل المنتج" crumb="الرئيسية / المتجر"/><section className="section" style={{paddingTop:60}}><div className="container"><div className="empty-state"><div className="ic">👜</div><p>لم يتم العثور على هذا المنتج</p><Link to="/shop" className="btn btn-navy mt-2">العودة للمتجر</Link></div></div></section></>;
-  const currentColor=product.colors[selectedColor]; const mainImageData=product.colorImages?.[currentColor]||product.image;
-  const gallery=(product.images?.length?product.images:[mainImageData]).filter(Boolean);
-  const mainImg=gallery[activeThumb]?<img src={gallery[activeThumb]} alt={product.name}/>:<span dangerouslySetInnerHTML={{__html:bagIcon("#0D1929")}}/>;
-  const thumbs=gallery.length?gallery.map((src,i)=><img key={src+i} src={src} alt=""/>):[<span key="b1" dangerouslySetInnerHTML={{__html:bagIcon("#0D1929")}}/>];
-  const outOfStock=product.stock<=0;
-  return <><PageHead title={product.name} crumb={`الرئيسية / المتجر / ${product.name}`}/><section className="section" style={{paddingTop:60}}><div className="container pd-grid"><div><div className="pd-gallery-main">{mainImg}</div><div className="pd-thumbs">{thumbs.map((t,i)=><div key={i} className={`t ${i===activeThumb?"active":""}`} onClick={()=>setActiveThumb(i)}>{t}</div>)}</div></div><div className="pd-info"><span className="cat-label">{product.category}</span>{product.brand&&<span className="pd-brand">{product.brand}</span>}<h1>{product.name}</h1>{count>0&&<div className="pd-review-summary"><StarRating rating={avg} size={18} showNumber/><span className="pd-review-count">({count} تقييم)</span></div>}<div className="pd-price">{formatPrice(product.price)}{product.oldPrice&&<span className="old">{formatPrice(product.oldPrice)}</span>}</div><p className="pd-desc">{product.desc}</p>{outOfStock&&<div className="pd-stock"><span className="pd-stock-out">نفذت الكمية</span></div>}<div className="pd-block"><h5>اللون</h5><div className="color-opts">{product.colors.map((c,i)=><span key={c} className={`color-opt ${i===selectedColor?"active":""}`} style={{background:c}} onClick={()=>{setSelectedColor(i);setActiveThumb(0)}}/>)}</div></div>{product.sizes?.length>0&&<div className="pd-block"><h5>المقاس</h5><div className="size-opts">{product.sizes.map((s,i)=><span key={s} className={`size-opt ${i===selectedSize?"active":""}`} onClick={()=>setSelectedSize(i)}>{s}</span>)}</div></div>}<div className="pd-block"><h5>الكمية</h5><div className="qty-row"><div className="qty-box"><button type="button" onClick={()=>setQty(q=>Math.max(1,q-1))}>−</button><input type="text" value={qty} readOnly/><button type="button" onClick={()=>setQty(q=>Math.min(product.stock,q+1))} disabled={outOfStock||qty>=product.stock}>+</button></div></div></div><div className="pd-actions"><button className="btn btn-navy" style={{flex:1,opacity:outOfStock?.5:1}} disabled={outOfStock} onClick={()=>addToCart(product.id,qty,product.colors[selectedColor]||null,product.sizes?.[selectedSize]||null)}>{outOfStock?"غير متوفر":"أضيفي إلى السلة"}</button><Link to="/cart" className="btn btn-outline-navy">السلة</Link></div></div></div></section><section className="section section-cream" style={{paddingTop:20}}><div className="container"><div className="section-head"><div><span className="section-tag">آراء العميلات</span><h2>تقييمات المنتج</h2></div></div><ReviewsSection productId={product.id}/></div></section></>;
-}
+<p>المقاس</p>
+            <div className="sizes-row">
+              {product.sizes.map((s, i) => (
+                <button
+                  key={s + i}
+                  className={`size-btn${selectedSize === i ? " active" : ""}`}
+                  onClick={() => setSelectedSize(i)}
+                >{s}</button>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {/* الكمية */}
+        <div className="product-qty">
+          <p>الكمية</p>
+          <div className="qty-row">
+            <button onClick={() => setQty(q => Math.max(1, q - 1))}>−</button>
+            <span>{qty}</span>
+            <button
+              onClick={() => setQty(q => Math.min(product.stock, q + 1))}
+              disabled={outOfStock || qty >= product.stock}
+            >+</button>
+          </div>
+        </div>
+
+        {/* أضيفي للسلة */}
+        <button
+          className="btn-primary add-to-cart"
+          disabled={outOfStock}
+          onClick={() => addToCart(
+            product.id, qty,
+            product.colors[selectedColor] || null,
+            product.sizes?.[selectedSize] || null
+          )}
+        >
+          {outOfStock ? "غير متوفر" : "أضيفي إلى السلة"}
+        </button>
+
+        <Link to="/cart" className="btn-secondary">السلة</Link>
+      </div>
+    </div>
+
+    {/* التقييمات */}
+    <div style={{ marginTop: 48 }}>
+      <h2>آراء العميلات</h2>
+      <ReviewsSection productId={id} />
+    </div>
+  </section>
+</PageHead>
+); }
