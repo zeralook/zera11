@@ -899,3 +899,7 @@ footer{background:var(--navy); color:var(--cream); padding:60px 0 26px;}
   .product-name{ font-size:22px; }
   .price-main{ font-size:22px; }
 }
+.value-card img, .value-card .icon, .value-card svg {
+  filter: drop-shadow(0 4px 6px rgba(0, 0, 0, 0.15));
+  transform: scale(1.05);
+}
