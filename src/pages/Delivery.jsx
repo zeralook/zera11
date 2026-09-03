@@ -17,7 +17,7 @@ export default function Delivery() {
             </tbody>
           </table>
 
-          <div className="value-cards" style={{ marginTop: 60 }}>
+                    <div className="value-cards" style={{ marginTop: 60 }}>
             <div className="value-card"><div className="ic">💵</div><h4>الدفع عند الاستلام</h4><p style={{ color: "#6b5f52", fontSize: 14, marginTop: 8 }}>ادفعي عند وصول طلبك لباب بيتك</p></div>
             <div className="value-card"><div className="ic">📦</div><h4>تغليف آمن</h4><p style={{ color: "#6b5f52", fontSize: 14, marginTop: 8 }}>كل طلب يُغلّف بعناية لضمان وصوله سليمًا</p></div>
             <div className="value-card"><div className="ic">🔄</div><h4>إمكانية الاستبدال</h4><p style={{ color: "#6b5f52", fontSize: 14, marginTop: 8 }}>تواصلي معنا خلال 48 ساعة لأي استفسار</p></div>
