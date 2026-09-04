@@ -4,7 +4,8 @@ import multer from 'multer';
 import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
 import crypto from 'crypto';
-import { put, head, del, list } from '@vercel/blob';
+import { put, list } from '@vercel/blob';
+
 
 const app = express();
 app.disable('x-powered-by');
