@@ -32,6 +32,7 @@ export default function Checkout() {
   const [payModal, setPayModal] = useState(false);
   const [paymentMethod, setPaymentMethod] = useState(null);
   const [submitted, setSubmitted] = useState(false);
+  const [platform, setPlatform] = useState('whatsapp');
   const [error, setError] = useState('');
   const formRef = useRef(null);
 
@@ -40,7 +41,7 @@ export default function Checkout() {
   const fee = gov ? (gov === 'كربلاء' ? getDeliveryFee('karbala') : getDeliveryFee('other')) : 0;
   const grandTotal = total + fee;
 
-  const finalizeOrder = () => {
+  const finalizeOrder = (targetPlatform) => {
     setError('');
     if (!gov) return setError('اختاري المحافظة أولاً.');
     const fd = new FormData(formRef.current);
@@ -53,8 +54,34 @@ export default function Checkout() {
       address: String(fd.get('address') || ''),
       notes: String(fd.get('notes') || ''),
     };
-    const url = buildMessage(customer, cart, products, paymentMethod, grandTotal);
-    window.open(url, '_blank', 'noopener,noreferrer');
+
+    setPlatform(targetPlatform);
+
+    if (targetPlatform === 'instagram') {
+      let msg = `طلب جديد من ZERA\n\n`;
+      msg += `👤 الاسم: ${customer.name}\n`;
+      msg += `📞 الهاتف: ${customer.phone}\n`;
+      if (customer.phone2) msg += `📞 هاتف ثانٍ: ${customer.phone2}\n`;
+      msg += `📍 المحافظة: ${customer.governorateName}\n`;
+      msg += `🏘️ المنطقة: ${customer.area}\n`;
+      msg += `🏠 العنوان: ${customer.address}\n`;
+      if (customer.notes) msg += `📝 ملاحظات: ${customer.notes}\n`;
+      msg += `\nالمنتجات:\n`;
+      cart.forEach(i => {
+        const p = products.find(x => x.id === i.id);
+        if (p) msg += `- ${p.name} × ${i.qty} — ${formatPrice(p.price * i.qty)}\n`;
+      });
+      msg += `\n🚚 التوصيل: ${formatPrice(grandTotal - total)}\n`;
+      msg += `💰 المجموع الكلي: ${formatPrice(grandTotal)}\n`;
+      msg += `💳 طريقة الدفع: ${paymentMethod === 'cod' ? 'الدفع عند الاستلام' : 'دفع إلكتروني'}`;
+
+      navigator.clipboard?.writeText(msg);
+      window.open('https://ig.me/m/zeralook', '_blank', 'noopener,noreferrer');
+    } else {
+      const url = buildMessage(customer, cart, products, paymentMethod, grandTotal);
+      window.open(url, '_blank', 'noopener,noreferrer');
+    }
+
     setSubmitted(true);
     setPayModal(false);
     clearCart();
@@ -82,7 +109,11 @@ export default function Checkout() {
           <div className="empty-state">
             <div className="ic" style={{ fontSize: 50 }}>✓</div>
             <h3 style={{ marginBottom: 10, color: 'var(--navy)' }}>تم تجهيز طلبك بنجاح!</h3>
-            <p style={{ marginBottom: 24 }}>تم فتح واتساب لإرسال تفاصيل طلبك 🎉</p>
+            <p style={{ marginBottom: 24 }}>
+              {platform === 'instagram' 
+                ? 'تم فتح انستقرام ونسخ تفاصيل طلبك (لصقها في المحادثة) 🎉' 
+                : 'تم فتح واتساب لإرسال تفاصيل طلبك 🎉'}
+            </p>
             <Link to="/" className="btn btn-navy">العودة للرئيسية</Link>
           </div>
         </div>
@@ -170,14 +201,17 @@ export default function Checkout() {
                         3857887354 <span className="pay-copy-hint">اضغطي للنسخ</span>
                       </div>
                     </div>
-                    <p style={{ fontSize: 13, marginTop: 12, color: '#8a7f72' }}>بعد التحويل، أرسلي صورة الوصل عبر واتساب.</p>
+                    <p style={{ fontSize: 13, marginTop: 12, color: '#8a7f72' }}>بعد التحويل، أرسلي صورة الوصل عبر واتساب أو انستقرام.</p>
                   </div>
                 )}
                 {paymentMethod === 'cod' && (
-                  <p style={{ fontSize: 14, lineHeight: 1.8 }}>سيتم إرسال تفاصيل الطلب عبر واتساب، والدفع عند استلامه.</p>
+                  <p style={{ fontSize: 14, lineHeight: 1.8 }}>سيتم إرسال تفاصيل الطلب عبر واتساب أو انستقرام، والدفع عند استلامه.</p>
                 )}
-                <button type="button" className="btn btn-navy btn-block" style={{ marginTop: 20 }} onClick={finalizeOrder}>
+                <button type="button" className="btn btn-navy btn-block" style={{ marginTop: 20 }} onClick={() => finalizeOrder('whatsapp')}>
                   تأكيد وإرسال الطلب عبر واتساب
+                </button>
+                <button type="button" className="btn btn-block" style={{ marginTop: 10, background: 'linear-gradient(45deg, #f09433, #e6683c, #dc2743, #cc2366, #bc1888)', color: '#fff' }} onClick={() => finalizeOrder('instagram')}>
+                  تأكيد وإرسال الطلب عبر انستقرام (@zeralook)
                 </button>
                 <button type="button" className="btn btn-outline-navy btn-block" style={{ marginTop: 12 }} onClick={() => setPaymentMethod(null)}>
                   تغيير طريقة الدفع
@@ -190,3 +224,4 @@ export default function Checkout() {
     </PageHead>
   );
 }
+
