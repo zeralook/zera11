@@ -6,7 +6,6 @@ import jwt from 'jsonwebtoken';
 import crypto from 'crypto';
 import { put, list } from '@vercel/blob';
 
-
 const app = express();
 app.disable('x-powered-by');
 app.use(helmet({ crossOriginResourcePolicy: { policy: 'cross-origin' } }));
