@@ -12,7 +12,7 @@ export default function Delivery() {
           <table className="delivery-table">
             <thead><tr><th>المنطقة</th><th>أجور التوصيل</th><th>المدة التقريبية</th></tr></thead>
             <tbody>
-              <tr><td>داخل كربلاء</td><td>3,000 د.ع</td><td>12 ساعة</td></tr>
+              <tr><td>داخل كربلاء</td><td>3,000 د.ع</td><td>10 ساعة</td></tr>
               <tr><td>بقية محافظات العراق</td><td>5,000 د.ع</td><td>12 - 24 ساعة</td></tr>
             </tbody>
           </table>
