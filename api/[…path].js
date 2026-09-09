@@ -257,7 +257,6 @@ app.post('/api/admin/settings', auth, async (req,res) => {
   } catch(e) { res.status(500).json({error:e.message}); }
 });
 
-// Get settings
 app.get('/api/config', async (req,res) => {
   try {
     const result = {
@@ -272,6 +271,14 @@ app.get('/api/config', async (req,res) => {
       'cat_جنط':'catجنط','cat_جديدنا':'catجديدنا',
       'cat_عروض':'catعروض','cat_akther':'catالاكثر'
     };
+    try {
+      const rows = await sb('settings', {});
+      if(rows) rows.forEach(r=>{ if(dbMap[r.key]) result[dbMap[r.key]]=r.value; });
+    } catch(e) {}
+    res.json(result);
+  } catch(e) { res.status(500).json({error:e.message}); }
+});
+
     try {
       const rows = await sb('settings', {});
       if(rows) rows.forEach(r=>{ if(dbMap[r.key]) result[dbMap[r.key]]=r.value; });
