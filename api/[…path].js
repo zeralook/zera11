@@ -33,14 +33,17 @@ const buckets = new Map();
 
 // Supabase REST helper
 async function sb(table, options = {}) {
-  const { method = 'GET', filter = '', body, select = '*', single = false } = options;
+  const { method = 'GET', filter = '', body, select = '*', single = false, upsert = false } = options;
   let url = `${SUPABASE_URL}/rest/v1/${table}?select=${select}${filter}`;
   if(single) url += '&limit=1';
+  const preferParts = [];
+  preferParts.push(method === 'POST' || method === 'PATCH' ? 'return=representation' : 'return=minimal');
+  if(upsert) preferParts.push('resolution=merge-duplicates');
   const headers = {
     'apikey': SUPABASE_KEY,
     'Authorization': `Bearer ${SUPABASE_KEY}`,
     'Content-Type': 'application/json',
-    'Prefer': method === 'POST' ? 'return=representation' : method === 'PATCH' ? 'return=representation' : 'return=minimal'
+    'Prefer': preferParts.join(',')
   };
   const r = await fetch(url, { method, headers, body: body ? JSON.stringify(body) : undefined });
   if(r.status === 204 || r.status === 200 && method === 'DELETE') return [];
@@ -250,7 +253,7 @@ app.post('/api/admin/settings', auth, async (req,res) => {
     };
     for(const [k,dbKey] of Object.entries(map)){
       if(body[k] !== undefined){
-        await sb('settings',{method:'POST',body:{key:dbKey,value:body[k]}}).catch(()=>{});
+        await sb('settings',{method:'POST',upsert:true,body:{key:dbKey,value:body[k]}});
       }
     }
     res.json({ok:true});
